@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Моя игра</title>
+    <style>
+        /* Стили для игры */
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #000;
+        }
+    </style>
+    <style>
+    #game-over-menu {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    </style>
+</head>
+<body>
+    <h1>Моя игра</h1>
+
+    <canvas id="gameCanvas" width="500" height="400"></canvas>
+    <div id="game-over-menu">
+      <button id="restart-button">Начать заново</button>
+      <button id="easy-button">Легко</button>
+      <button id="medium-button">Средне</button>
+      <button id="hard-button">Сложно</button>
+    </div>
+    <script>
+        // Ваш код на JavaScript для отображения игры
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        canvas.width = 500;
+        canvas.height = 400;
+        document.body.appendChild(canvas);
+
+        const restartButton = document.getElementById("restart-button");
+        const easyButton = document.getElementById("easy-button");
+        const mediumButton = document.getElementById("medium-button");
+        const hardButton = document.getElementById("hard-button");
+
+        restartButton.addEventListener("click", restartGame);
+        easyButton.addEventListener("click", setEasyDifficulty);
+        mediumButton.addEventListener("click", setMediumDifficulty);
+        hardButton.addEventListener("click", setHardDifficulty);
+
+        function restartGame() {
+          startGame();
+        }
+
+        function setEasyDifficulty() {
+
+        }
+
+        function setMediumDifficulty() {
+          // Выполните необходимые действия для установки средней сложности игры
+        }
+
+        function setHardDifficulty() {
+          // Выполните необходимые действия для установки сложной сложности игры
+        }
+
+        // Переменные для начальной страницы
+        var startPage = true;
+        var difficulty = "easy";
+
+        // Функция отрисовки начальной страницы
+        function drawStartPage() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.font = "30px Arial";
+            ctx.fillStyle = "#0095DD";
+            ctx.fillText("Выберите сложность:", 100, 150);
+            ctx.font = "20px Arial";
+            ctx.fillText("Легкая", 180, 200);
+            ctx.fillText("Нормальная", 165, 230);
+            ctx.fillText("Сложная", 180, 260);
+        }
+
+        // Обработка нажатия на начальной странице
+        canvas.addEventListener("click", startPageClickHandler, false);
+
+        function startPageClickHandler(e) {
+             var clickX = e.offsetX;
+             var clickY = e.offsetY;
+
+            if (clickX > 165 && clickX < 315) {
+                if (clickY > 180 && clickY < 210) {
+                    difficulty = "easy";
+                    ball.speedX = 2;
+                    ball.speedY = -2;
+                    startGame();
+                } else if (clickY > 210 && clickY < 240) {
+                    difficulty = "normal";
+                    ball.speedX = 3;
+                    ball.speedY = -3;
+                    startGame();
+                } else if (clickY > 240 && clickY < 270) {
+                    difficulty = "hard";
+                    ball.speedX = 4;
+                    ball.speedY = -4;
+                    startGame();
+                }
+            }
+        }
+
+        // Функция запуска игры
+        function startGame() {
+            startPage = false;
+            setInterval(update, 10);
+        }
+
+        // Определение размеров и скорости шара и платформы
+        var ball = {
+            x: canvas.width / 2,
+            y: canvas.height - 30,
+            radius: 20,
+            speedX: 3,
+            speedY: -3
+        };
+
+        var platform = {
+            x: (canvas.width - 80) / 2,
+            y: canvas.height - 10,
+            width: 80,
+            height: 10,
+            speed: 4
+        };
+
+        // Функция отрисовки шара
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Функция отрисовки платформы
+        function drawPlatform() {
+            ctx.beginPath();
+            ctx.rect(platform.x, platform.y, platform.width, platform.height);
+            ctx.fillStyle = "#0095DD";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        // Функция обновления игры
+        function update() {
+            if (startPage) {
+                drawStartPage();
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                drawBall();
+                drawPlatform();
+
+                // Отскок шара от стенок
+                if (ball.x + ball.speedX < ball.radius || ball.x + ball.speedX > canvas.width - ball.radius) {
+                    ball.speedX = -ball.speedX;
+                }
+                if (ball.y + ball.speedY < ball.radius) {
+                    ball.speedY = -ball.speedY;
+                }
+
+                // Отскок шара от платформы
+                if (ball.y + ball.speedY > canvas.height - ball.radius) {
+                    if (ball.x > platform.x && ball.x < platform.x + platform.width) {
+                        ball.speedY = -ball.speedY;
+                    } else {
+                        // Проигрыш
+
+
+                    }
+                }
+
+                ball.x += ball.speedX;
+                ball.y += ball.speedY;
+
+                // Управление платформой
+                if (rightPressed && platform.x < canvas.width - platform.width) {
+                    platform.x += platform.speed;
+                } else if (leftPressed && platform.x > 0) {
+                    platform.x -= platform.speed;
+                }
+            }
+        }
+
+        // Обработка нажатия клавиш
+        var rightPressed = false;
+        var leftPressed = false;
+
+        document.addEventListener("keydown", keyDownHandler, false);
+        document.addEventListener("keyup", keyUpHandler, false);
+
+        function keyDownHandler(e) {
+            if(e.keyCode == 39) {
+                rightPressed = true;
+            }
+            else if(e.keyCode == 37) {
+                leftPressed = true;
+            }
+        }
+
+        function keyUpHandler(e) {
+            if(e.keyCode == 39) {
+                rightPressed = false;
+            }
+            else if(e.keyCode == 37) {
+                leftPressed = false;
+            }
+        }
+
+        // Запуск игры
+        drawStartPage();
+    </script>
+</body>
+</html>
